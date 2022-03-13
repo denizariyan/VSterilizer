@@ -1,0 +1,22 @@
+{
+  "name": "vsterilizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/denizariyan/VSterilizer.git"
+  },
+  "author": "denizariyan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/denizariyan/VSterilizer/issues"
+  },
+  "homepage": "https://github.com/denizariyan/VSterilizer#readme",
+  "dependencies": {
+    "clamscan": "^2.1.0"
+  }
+}
