@@ -1,5 +1,7 @@
 const NodeClam = require('clamscan');
-const ClamScan = new NodeClam().init({
+const axios = require('axios');
+options =
+{
     removeInfected: false, // If true, removes infected files
     quarantineInfected: false, // False: Don't quarantine, Path: Moves files to this place.
     scanLog: null, // Path to a writeable log file to write scan results into
@@ -12,29 +14,43 @@ const ClamScan = new NodeClam().init({
         scanArchives: false, // If true, scan archives (ex. zip, rar, tar, dmg, iso, etc...)
         active: true // If true, this module will consider using the clamscan binary
     },
-    clamdscan: {
-        socket: false, // Socket file for connecting via TCP
-        host: false, // IP of host to connect to TCP interface
-        port: false, // Port of host to use when connecting via TCP interface
-        timeout: 60000, // Timeout for scanning files
-        localFallback: true, // Use local preferred binary to scan if socket/tcp fails
-        path: '/usr/bin/clamdscan', // Path to the clamdscan binary on your server
-        configFile: null, // Specify config file if it's in an unusual place
-        multiscan: true, // Scan using all available cores! Yay!
-        reloadDb: false, // If true, will re-load the DB on every call (slow)
-        active: true, // If true, this module will consider using the clamdscan binary
-        bypassTest: false, // Check to see if socket is available when applicable
-    },
     preference: 'clamscan' // If clamdscan is found and active, it will be used by default
-});
+}
+const ClamScan = new NodeClam().init(options);
 
-ClamScan.then(async clamscan => {
-    clamscan.isInfected('/home/deari/Downloads/eicar.com').then(result => {
-        const { file, isInfected, viruses } = result;
-        if (isInfected) console.log(`${file} is infected with ${viruses.join(', ')}.`);
-    }).then(err => {
+async function sendResults(file, isInfected, viruses) {
+
+    let payload = { file: file, isInfected: isInfected, viruses: viruses.join(', ') };
+
+    let res = await axios.post('http://httpbin.org/post', payload);
+
+    let data = res.data;
+    console.log(data);
+    sendStatus("Scan completed.")
+}
+
+async function sendStatus(status) {
+
+    let payload = { status: status };
+
+    let res = await axios.post('http://httpbin.org/post', payload);
+
+    let data = res.data;
+    console.log(data);
+}
+function scanFile(path) {
+    ClamScan.then(async clamscan => {
+        sendStatus("Scan in progress...")
+        clamscan.isInfected(path).then(result => {
+            const { file, isInfected, viruses } = result;
+            sendResults(file, isInfected, viruses);
+            if (isInfected) console.log(`${file} is infected with ${viruses.join(', ')}.`);
+        }).catch(err => {
+            console.error(err);
+        })
+    }).catch(err => {
         console.error(err);
-    })
-}).catch(err => {
-    // Handle errors that may have occurred during initialization
-});
+    });
+}
+
+scanFile('/home/deari/Downloads/eicar.com');

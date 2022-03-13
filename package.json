@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/denizariyan/VSterilizer#readme",
   "dependencies": {
+    "axios": "^0.26.1",
     "clamscan": "^2.1.0"
   }
 }
