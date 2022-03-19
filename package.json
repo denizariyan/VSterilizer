@@ -18,6 +18,8 @@
   "homepage": "https://github.com/denizariyan/VSterilizer#readme",
   "dependencies": {
     "axios": "^0.26.1",
-    "clamscan": "^2.1.0"
+    "clamscan": "^2.1.0",
+    "usb-detection": "^4.14.1",
+    "uuid": "^8.3.2"
   }
 }
