@@ -37,30 +37,24 @@ async function sendStatus(status) {
     let data = res.data;
     console.log(data);
 }
-function scanFile(path) {
-    ClamScan.then(async clamscan => {
-        sendStatus("Scan in progress...")
-        clamscan.isInfected(path).then(result => {
-            const { file, isInfected, viruses } = result;
-            //sendResults(file, isInfected, viruses); Instead of sending directly, store the results for each file and send it as a big package
-            if (isInfected) console.log(`${file} is infected with ${viruses.join(', ')}.`);
-        }).catch(err => {
-            console.error(err);
-        })
-    }).catch(err => {
-        console.error(err);
-    });
-}
 
-// Currently non-recursive, do we want it to be recursive?
-function getFiles(path) {
-    let filePaths = [];
-    fs.readdirSync(path).forEach(file => {
-        filePaths.push(file);
-    });
-    filePaths.forEach(filePath => {
-        console.log(path + "/" + filePath);
-        //scanFile(path);
+function scanDirectory(path) {
+    // Get instance by resolving ClamScan promise object
+    ClamScan.then(async clamscan => {
+        try {
+            // You can re-use the `clamscan` object as many times as you want
+            const version = await clamscan.getVersion();
+            console.log(`ClamAV Version: ${version}`);
+
+            const { goodFiles, badFiles } = await clamscan.scanDir(path).catch(error => console.log(error));
+            console.log(goodFiles);
+            console.log(badFiles);
+
+        } catch (err) {
+            // Handle any errors raised by the code in the try block
+        }
+    }).catch(err => {
+        // Handle errors that may have occurred during initialization
     });
 }
 
@@ -85,7 +79,8 @@ function mount(source) {
     const uuid = uuidv4();
     child_process.execSync(`mkdir -p /media/VSterilizer/${uuid}`);
     child_process.execSync(`mount ${source} /media/VSterilizer/${uuid}`);
-    getFiles(`/media/VSterilizer/${uuid}`);
+    console.log(`/media/VSterilizer/${uuid}`);
+    scanDirectory(`/media/VSterilizer/${uuid}`);
 }
 
 // Send this to helper script
@@ -95,6 +90,7 @@ USBWatch.on('add', function (device) {
 });
 
 function start() {
+    console.log("Started to monitor for USB inserts!");
     USBWatch.startMonitoring();
     //getMountPoint("C03FD5F2F334F15109A501FD"); // For testing
     //scanFile('/home/deari/Downloads/eicar.com');
