@@ -35,12 +35,19 @@ options =
     preference: 'clamdscan' // If clamdscan is found and active, it will be used by default
 }
 
-async function sendResults(goodFiles, badFiles, viruses) {
-    let payload = { goodFiles: goodFiles.join(', '), badFiles: badFiles.join(', '), viruses: viruses.join(', ') };
-    let res = await axios.post('http://httpbin.org/post', payload);
-    let data = res.data;
-    console.log(data);
-    sendStatus("Scan completed.")
+// Send every bad file one by one
+async function sendResults(badFileList = null) {
+    if (badFileList === null) {
+        sendStatus("Scan completed, no infected files has been detected.")
+    } else {
+        for (element of badFileList) {
+            let payload = { badFile: element.filename, virus: element.virus };
+            let res = await axios.post('http://httpbin.org/post', payload);
+            let data = res.data;
+            console.log(data);
+        };
+        sendStatus("Scan completed, check infected file list!")
+    }
 }
 
 async function sendStatus(status) {
@@ -55,17 +62,15 @@ async function scanDirectory(path) {
     const clamscan = await new NodeClam().init(options);
     try {
         // TODO: Replace hard-coded path with path var it is here for faster testing
-        await clamscan.scanDir("/home/deari/Downloads", async function (err, goodFiles, badFiles, viruses) {
+        await clamscan.scanDir(path, async function (err, goodFiles, badFiles, viruses) {
             if (badFiles.length > 0) {
-                let foi = await parseLog();
-
-                sendResults(goodFiles, badFiles, viruses);
+                let badFileList = await parseLog(path);
+                sendResults(badFileList);
             } else {
-                sendResults(goodFiles, badFiles, viruses);
+                sendResults(null);
             }
         });
     } catch (err) {
-        // Handle any errors raised by the code in the try block
         console.log(err);
     }
 }
@@ -77,35 +82,36 @@ function sleep(ms) {
 }
 
 // Parse log file to find file of interest (foi) 
-// TODO: parse the line and get the filename for the foi
-// and return it so it can be added to bad files list. Do we even need good files list? 
-// maybe search for FOUND so we can parse the filename and the virus in it. How to handle multiple of these?
-// For handling multiple: the search returns all so split it by end of line to get each as an array element using "file.split(/\r?\n/);"
-// Split by blank space. For filename: remove everything until end of our generated UUID to get filename
-// For virus just get the [1] of the split
-async function parseLog() {
+async function parseLog(parser) {
+    let badFiles = [];
     let file = fs.readFileSync(options.scanLog, "utf8");
     let arr = file.split(/\r?\n/);
     arr.forEach((line, idx) => {
-        if (line.includes("moved")) {
-            console.log((idx + 1) + ':' + line);
+        if (line.includes("FOUND")) {
+            line = line.split(/[ ]+/);
+            let fname = line[0].split(parser);
+            fname = fname.pop().slice(0, -1);
+            let badFileEntry = {
+                filename: fname,
+                virus: line[1]
+            };
+            badFiles.push(badFileEntry);
         }
     });
+    return badFiles;
 }
 
 async function getMountPoint(serialNumber) {
     sendStatus("Accessing the USB Device...");
     await sleep(5000); // Wait for device to be mounted by kernel
     let out = child_process.spawnSync('/home/deari/projects/VSterilizer/getMountPoint.sh', [serialNumber]);
-    console.log(out.stdout.toString('utf8').split("\n")[0]); // What we need to mount
     let length = out.stdout.toString('utf8').split("\n")[0].length;
     // Use this to check if the found addy ends with number try other one if doesnt
-    console.log(Number.isInteger(parseInt(out.stdout.toString('utf8').split("\n")[0].charAt(length - 1))));
     mount(out.stdout.toString('utf8').split("\n")[0]);
 }
 
 function mount(source) {
-    const uuid = uuidv4();
+    let uuid = uuidv4();
     child_process.execSync(`mkdir -p /media/VSterilizer/${uuid}`);
     child_process.execSync(`mount ${source} /media/VSterilizer/${uuid}`);
     console.log(`/media/VSterilizer/${uuid}`);
@@ -116,16 +122,15 @@ function mount(source) {
 
 // Send this to helper script
 USBWatch.on('add', function (device) {
-    console.log(device.serialNumber);
     getMountPoint(device.serialNumber);
 });
 
 function start() {
     fs.writeFileSync(options.scanLog, ''); // Clear the logs
     console.log("Started to monitor for USB inserts!");
-    USBWatch.startMonitoring();
+    //USBWatch.startMonitoring();
     //getMountPoint("C03FD5F2F334F15109A501FD"); // For testing
-    //scanFile('/home/deari/Downloads/eicar.com');
+    scanDirectory("/home/deari/Downloads"); // Enable for testing
 }
 
 start();
