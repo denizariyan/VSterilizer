@@ -12,11 +12,10 @@ fs.watch(env, (event, filename) => {
             return;
         }
         md5Previous = md5Current;
-        scan("start");
         scan("stop");
+        scan("start");
         console.log(`${filename} file changed.`);
     }
 });
 
 scan("start");
-//scan("stop");
