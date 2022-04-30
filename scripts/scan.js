@@ -11,7 +11,7 @@ options =
     removeInfected: process.env.removeInfected, // If true, removes infected files
     quarantineInfected: process.env.quarantineInfected, // False: Don't quarantine, Path: Moves files to this place.
     scanLog: '/usr/VSterilizer/log/scan.log', // Path to a writeable log file to write scan results into
-    debugMode: true, // Whether or not to log info/debug/error msgs to the console
+    debugMode: false, // Whether or not to log info/debug/error msgs to the console
     fileList: null, // path to file containing list of files to scan (for scanFiles method)
     scanRecursively: true, // If true, deep scan folders recursively
     clamscan: {
