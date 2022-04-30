@@ -69,7 +69,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+#.env # No secret is being stored in the env file so it is safe to commit.
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
