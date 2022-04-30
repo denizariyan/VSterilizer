@@ -69,7 +69,7 @@ async function sendStatus(status) {
 /**
  * Scan the given directory path for infected files
  * Call the result sending function to send the results to the frontend API
- * @param  {string} path
+ * @param  {string} path - Path for the directory to be scanned
  */
 async function scanDirectory(path) {
     const clamscan = await new NodeClam().init(options);
@@ -90,7 +90,7 @@ async function scanDirectory(path) {
 
 /**
  * Add the ability to wait in parts of the code without blocking rest of the program
- * @param  {integer} ms
+ * @param  {integer} ms - Time to wait
  */
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -101,7 +101,7 @@ function sleep(ms) {
 /**
  * Parses the scanner log file to get detailed information about infected files
  * Takes a keyword parameter which has the path of a given infected file
- * @param  {string} keyword
+ * @param  {string} keyword - Keyword that we are looking for
  */
 async function parseLog(keyword) {
     let badFiles = [];
@@ -124,7 +124,7 @@ async function parseLog(keyword) {
 
 /**
  * Get the mounting point for a given serial number
- * @param  {string} serialNumber
+ * @param  {string} serialNumber - Serial number of the USB device, can include chars and integers
  */
 async function getMountPoint(serialNumber) {
     sendStatus("Accessing the USB Device...");
@@ -136,7 +136,7 @@ async function getMountPoint(serialNumber) {
 /**
  * Mount the given device to a auto-generated dir under the
  * products own mounting directory
- * @param  {string} source
+ * @param  {string} source - source for the device to be mounted
  */
 function mount(source) {
     let uuid = uuidv4();
@@ -149,7 +149,7 @@ function mount(source) {
 /**
  * Enable watcher to detect newly plugged USB devices
  * Calls the mounting point getter function when a new device is detected
- * @param  {string} 'add'
+ * @param  {string} 'add' - Const string
  */
 USBWatch.on('add', function (device) {
     getMountPoint(device.serialNumber);
