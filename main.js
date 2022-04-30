@@ -1,4 +1,5 @@
 const scan = require("./scripts/scan");
+require("./scripts/config");
 const fs = require('fs');
 const md5 = require('md5');
 const env = './.env';
