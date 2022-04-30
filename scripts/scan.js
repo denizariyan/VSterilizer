@@ -36,7 +36,10 @@ options =
     preference: 'clamdscan' // If clamdscan is found and active, it will be used by default
 }
 
-// Send every bad file one by one
+/**
+ * Send the results of a scan to the API endpoint in realtime
+ * @param  {array<string>} badFileList=null
+ */
 async function sendResults(badFileList = null) {
     if (badFileList === null) {
         sendStatus("Scan completed, no infected files has been detected.")
@@ -51,6 +54,11 @@ async function sendResults(badFileList = null) {
     }
 }
 
+/**
+ * Sends status information to the API endpoint
+ * This includes data with information level severity such as a new USB being detected, a new scan running etc. 
+ * @param  {string} status
+ */
 async function sendStatus(status) {
     let payload = { status: status };
     let res = await axios.post('http://httpbin.org/post', payload);
@@ -58,8 +66,12 @@ async function sendStatus(status) {
     console.log(data);
 }
 
+/**
+ * Scan the given directory path for infected files
+ * Call the result sending function to send the results to the frontend API
+ * @param  {string} path
+ */
 async function scanDirectory(path) {
-    // Get instance by resolving ClamScan promise object
     const clamscan = await new NodeClam().init(options);
     try {
         // TODO: Replace hard-coded path with path var it is here for faster testing
@@ -76,21 +88,29 @@ async function scanDirectory(path) {
     }
 }
 
+/**
+ * Add the ability to wait in parts of the code without blocking rest of the program
+ * @param  {integer} ms
+ */
 function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
 }
 
-// Parse log file to find file of interest (foi) 
-async function parseLog(parser) {
+/**
+ * Parses the scanner log file to get detailed information about infected files
+ * Takes a keyword parameter which has the path of a given infected file
+ * @param  {string} keyword
+ */
+async function parseLog(keyword) {
     let badFiles = [];
     let file = fs.readFileSync(options.scanLog, "utf8");
     let arr = file.split(/\r?\n/);
     arr.forEach((line, idx) => {
         if (line.includes("FOUND")) {
             line = line.split(/[ ]+/);
-            let fname = line[0].split(parser);
+            let fname = line[0].split(keyword);
             fname = fname.pop().slice(0, -1);
             let badFileEntry = {
                 filename: fname,
@@ -102,31 +122,43 @@ async function parseLog(parser) {
     return badFiles;
 }
 
-// To reload env vars have a script that the config file editor API one kill and re-start this one
+/**
+ * Get the mounting point for a given serial number
+ * @param  {string} serialNumber
+ */
 async function getMountPoint(serialNumber) {
     sendStatus("Accessing the USB Device...");
     await sleep(5000); // Wait for device to be mounted by kernel
     let out = child_process.spawnSync('/home/deari/projects/VSterilizer/getMountPoint.sh', [serialNumber]);
-    let length = out.stdout.toString('utf8').split("\n")[0].length;
-    // Use this to check if the found addy ends with number try other one if doesnt
     mount(out.stdout.toString('utf8').split("\n")[0]);
 }
 
+/**
+ * Mount the given device to a auto-generated dir under the
+ * products own mounting directory
+ * @param  {string} source
+ */
 function mount(source) {
     let uuid = uuidv4();
     child_process.execSync(`mkdir -p /media/VSterilizer/${uuid}`);
     child_process.execSync(`mount ${source} /media/VSterilizer/${uuid}`);
-    console.log(`/media/VSterilizer/${uuid}`);
-    // Remove Windows specific un-usable files which should never been generated anyways. Windows Search service bug causes this file
     fs.rmSync(`/media/VSterilizer/${uuid}/System\ Volume\ Information/`, { recursive: true, force: true });
     scanDirectory(`/media/VSterilizer/${uuid}/`);
 }
 
-// Send this to helper script
+/**
+ * Enable watcher to detect newly plugged USB devices
+ * Calls the mounting point getter function when a new device is detected
+ * @param  {string} 'add'
+ */
 USBWatch.on('add', function (device) {
     getMountPoint(device.serialNumber);
 });
 
+/**
+ * Starting point of the scanner script
+ * Handles clean-up and starts the USB monitoring
+ */
 function start() {
     fs.writeFileSync(options.scanLog, ''); // Clear the logs
     console.log("Started to monitor for USB inserts!");
@@ -135,6 +167,10 @@ function start() {
     //scanDirectory("/home/deari/Downloads/"); // Enable for testing
 }
 
+/**
+ * Helper script to end the USB monitoring
+ * Utilized while stopping or restarting the service
+ */
 function endWatch() {
     USBWatch.stopMonitoring();
 }
