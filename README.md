@@ -34,21 +34,21 @@ sudo dnf install clamav clamd clamav-update
 
 ## Usage
 
-1. Run the main script using
+### 1. Run the main script using
 
 ```bash
 sudo node main.js
 ```
 
-2. After running the script you will get a response similar to the one below mentioning that both the the scanner utility and the API listener utility is running.
+### 2. After running the script you will get a response similar to the one below mentioning that both the the scanner utility and the API listener utility is running.
 
 ```bash
 Started to monitor for USB inserts!
 Listening on port 8080!
 ```
 
-3. Plug a USB device to the computer.
-4. The script will detect the newly plugged in USB device and start scanning it immediately and send a status message to the API endpoint that it is accessing a new USB device. Example API call below.
+### 3. Plug a USB device to the computer.
+### 4. The script will detect the newly plugged in USB device and start scanning it immediately and send a status message to the API endpoint that it is accessing a new USB device. Example API call below.
 
 ```bash
 {
