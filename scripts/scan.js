@@ -103,9 +103,9 @@ function sleep(ms) {
  * Takes a keyword parameter which has the path of a given infected file
  * @param  {string} keyword - Keyword that we are looking for
  */
-async function parseLog(keyword) {
+async function parseLog(keyword, logfile = options.scanLog) {
     let badFiles = [];
-    let file = fs.readFileSync(options.scanLog, "utf8");
+    let file = fs.readFileSync(logfile, "utf8");
     let arr = file.split(/\r?\n/);
     arr.forEach((line, idx) => {
         if (line.includes("FOUND")) {
@@ -175,10 +175,6 @@ function endWatch() {
     USBWatch.stopMonitoring();
 }
 
-module.exports = function (request) {
-    if (request == "start") {
-        start();
-    } else if (request == "stop") {
-        endWatch();
-    }
-}
+exports.start = start;
+exports.stop = endWatch;
+module.exports.parseLog = parseLog;

@@ -19,8 +19,8 @@ fs.watch(env, (event, filename) => {
             return;
         }
         md5Previous = md5Current;
-        scan("stop");
-        scan("start");
+        scan.stop();
+        scan.start();
         console.log(`${filename} file changed.`);
     }
 });
@@ -29,4 +29,4 @@ fs.watch(env, (event, filename) => {
  * Start the scanner when the main script is called
  * @param  {string} "start"
  */
-scan("start");
+scan.start();
