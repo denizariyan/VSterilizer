@@ -1,6 +1,7 @@
 # VSterilizer
 
 ![node.js](https://github.com/denizariyan/VSterilizer/actions/workflows/node.js.yml/badge.svg)
+[![CodeQL](https://github.com/denizariyan/VSterilizer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/denizariyan/VSterilizer/actions/workflows/codeql-analysis.yml)
 
 VSterilizer is a USB scanning service that scans any USB device plugged into the computer that is running the scanner utility and reports the results through API endpoints.
 
