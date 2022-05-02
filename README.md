@@ -26,6 +26,12 @@ git clone https://github.com/denizariyan/VSterilizer.git
 npm install
 ```
 
+### 4. Install ClamAV
+
+```bash
+sudo dnf install clamav clamd clamav-update
+```
+
 ## Usage
 
 1. Run the main script using
