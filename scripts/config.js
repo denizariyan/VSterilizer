@@ -12,13 +12,14 @@ const quarantinePath = "/usr/VSterilizer/infected/";
  * @param  {string} key - Key for the given env variable
  * @param  {string} newValue - New value for the given key
  */
-async function changeParam(key, newValue) {
-    const ENV_VARS = fs.readFileSync("./.env", "utf8").split(os.EOL);
+async function changeParam(key, newValue, env = "./.env") {
+    const ENV_VARS = fs.readFileSync(env, "utf8").split(os.EOL);
     const target = ENV_VARS.indexOf(ENV_VARS.find((line) => {
         return line.match(new RegExp(key));
     }));
     ENV_VARS.splice(target, 1, `${key}=${newValue}`);
-    fs.writeFileSync("./.env", ENV_VARS.join(os.EOL));
+    fs.writeFileSync(env, ENV_VARS.join(os.EOL));
+    return `${key} mode enabled`;
 }
 
 /**
@@ -53,5 +54,8 @@ app.post('/options', (req, res) => {
     optionHandler(req, res);
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`Listening on port ${port}!`))
 app.on("exit", () => server.close())
+
+module.exports.changeParam = changeParam;
+module.exports.server = server;
