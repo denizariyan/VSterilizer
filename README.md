@@ -8,19 +8,19 @@ VSterilizer is a USB scanning service that scans any USB device plugged into the
 
 This installation steps assume that you are running Fedora 35. There could be slight changes to the shell commands if you are running another distro but the steps in general will be the same.
 
-##### 1. Use the package manager dnf to install NodeJS
+### 1. Use the package manager dnf to install NodeJS
 
 ```bash
 sudo dnf install nodejs
 ```
 
-##### 2. Clone the repo
+### 2. Clone the repo
 
 ```bash
 git clone https://github.com/denizariyan/VSterilizer.git
 ```
 
-##### 3. Install the dependencies
+### 3. Install the dependencies
 
 ```bash
 npm install
@@ -66,7 +66,7 @@ Listening on port 8080!
 
 5. After the scanning is complete a result message will be sent to the API endpoint.
 
-##### For clean USB devices
+### For clean USB devices
 
 ```bash
 {
@@ -88,7 +88,7 @@ Listening on port 8080!
 }
 ```
 
-##### For USB devices with infected files
+### For USB devices with infected files
 
 First a status message that mentions that the USB device is infected will be sent.
 
