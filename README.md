@@ -167,6 +167,9 @@ Snapshots:   0 total
 Time:        0.928 s, estimated 1 s
 ```
 
+## Flowchart
+![flowchart](https://raw.githubusercontent.com/denizariyan/VSterilizer/847f0135dc2bf7516597eb2743054597a4e726aa/VSterilizer_flowchart.png)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
