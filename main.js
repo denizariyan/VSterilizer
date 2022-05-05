@@ -8,6 +8,7 @@ let md5Previous = md5(fs.readFileSync(env));
 
 /**
  * Watch the .env file for changes and restart the scanner with new options if there is any change
+ * Time Complexity: O(1): Async event listener, static time
  * @param  {string} env - Path to the .env file
  * @param  {event} event - A filesystem event
  * @param  {string} filename - Name of the file for the filesystem event

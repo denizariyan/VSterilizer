@@ -38,6 +38,8 @@ options =
 
 /**
  * Send the results of a scan to the API endpoint in realtime
+ * Time Complexity: O(1): When there is no infected files
+ * Time Complexity: O(n): When there are infected files
  * @param  {array<string>} badFileList - List of infected files, defaults to null
  */
 async function sendResults(badFileList = null) {
@@ -56,7 +58,8 @@ async function sendResults(badFileList = null) {
 
 /**
  * Sends status information to the API endpoint
- * This includes data with information level severity such as a new USB being detected, a new scan running etc. 
+ * This includes data with information level severity such as a new USB being detected, a new scan running etc.
+ * Time Complexity: O(n): Depends on the size of the message
  * @param  {string} status - Status message to send
  */
 async function sendStatus(status) {
@@ -69,6 +72,7 @@ async function sendStatus(status) {
 /**
  * Scan the given directory path for infected files
  * Call the result sending function to send the results to the frontend API
+ * Time Complexity: O(n): Scanner needs to check every file seperately.
  * @param  {string} path - Path for the directory to be scanned
  */
 async function scanDirectory(path) {
@@ -100,6 +104,7 @@ function sleep(ms) {
 /**
  * Parses the scanner log file to get detailed information about infected files
  * Takes a keyword parameter which has the path of a given infected file
+ * Time Complexity: O(n): Depends on the number of files scanned.
  * @param  {string} keyword - path of the file we are intersted in
  */
 async function parseLog(keyword, logfile = options.scanLog) {
@@ -123,6 +128,7 @@ async function parseLog(keyword, logfile = options.scanLog) {
 
 /**
  * Get the mounting point for a given serial number
+ * Time Complexity: O(n): Depends on number of phyisal ports the computer has
  * @param  {string} serialNumber - Serial number of the USB device, can include chars and integers
  */
 async function getMountPoint(serialNumber) {
@@ -135,6 +141,7 @@ async function getMountPoint(serialNumber) {
 /**
  * Mount the given device to a auto-generated dir under the
  * products own mounting directory
+ * Time Complexity: O(1): Directly calls system functions, static time
  * @param  {string} source - physical port of the device to be mounted. ex: /dev/sda0
  */
 function mount(source) {
@@ -148,6 +155,7 @@ function mount(source) {
 /**
  * Enable watcher to detect newly plugged USB devices
  * Calls the mounting point getter function when a new device is detected
+ * Time Complexity: O(1): Async event listener, static time
  * @param  {string} 'add' - Adds a new USB event listener
  */
 USBWatch.on('add', function (device) {
@@ -157,6 +165,7 @@ USBWatch.on('add', function (device) {
 /**
  * Starting point of the scanner script
  * Handles clean-up and starts the USB monitoring
+ * Time Complexity: O(1): No variable input, static time
  */
 function start() {
     fs.writeFileSync(options.scanLog, ''); // Clear the logs
@@ -167,6 +176,7 @@ function start() {
 /**
  * Helper to end the USB monitoring
  * Utilized while stopping or restarting the service
+ * Time Complexity: O(1): No variable input, static time. Near instant
  */
 function endWatch() {
     USBWatch.stopMonitoring();
