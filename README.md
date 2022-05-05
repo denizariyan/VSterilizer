@@ -5,6 +5,9 @@
 
 VSterilizer is a USB scanning service that scans any USB device plugged into the computer that is running the scanner utility and reports the results through API endpoints.
 
+## API Flow
+![flowchart](https://github.com/denizariyan/VSterilizer/blob/fcf9c080fe14300fa23fe27c3fd1f00d2f107c5d/VSterilizer_API_flow.png)
+
 ## Installation and Usage
 
 This installation steps assume that you are running Fedora 35. There could be slight changes to the shell commands if you are running another distro but the steps in general will be the same.
