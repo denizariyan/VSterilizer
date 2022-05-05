@@ -11,6 +11,7 @@ const quarantinePath = "/usr/VSterilizer/infected/";
  * Find the line for the given key and splice it to replace with the new value
  * @param  {string} key - Key for the given env variable
  * @param  {string} newValue - New value for the given key
+ * @param  {string} env - path to the environment file. Defaults to the project supplied one
  */
 async function changeParam(key, newValue, env = "./.env") {
     const ENV_VARS = fs.readFileSync(env, "utf8").split(os.EOL);
@@ -43,18 +44,31 @@ async function optionHandler(req, res) {
     }
 }
 
+/**
+ * Parse incoming requests body as JSON
+ * @param  {function} - JSON parser
+ */
 app.use(bodyParser.json());
 
 /**
  * @param  {string} '/options' - API endpoint
- * @param  {request} req
- * @param  {response} res
+ * @param  {request} req - Incoming post request
+ * @param  {response} res - Response to be sent
  */
 app.post('/options', (req, res) => {
     optionHandler(req, res);
 });
 
+/**
+ * Launch the server instance
+ * @param  {integer} port - Port to launch the server on. Default: 8080
+ */
 const server = app.listen(port, () => console.log(`Listening on port ${port}!`))
+
+/**
+ * Close the server when an exit event is emited
+ * @param  {string} "exit" - Event name
+ */
 app.on("exit", () => server.close())
 
 module.exports.changeParam = changeParam;

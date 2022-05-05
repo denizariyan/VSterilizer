@@ -38,7 +38,7 @@ options =
 
 /**
  * Send the results of a scan to the API endpoint in realtime
- * @param  {array<string>} badFileList=null
+ * @param  {array<string>} badFileList - List of infected files, defaults to null
  */
 async function sendResults(badFileList = null) {
     if (badFileList === null) {
@@ -46,7 +46,7 @@ async function sendResults(badFileList = null) {
     } else {
         for (element of badFileList) {
             let payload = { badFile: element.filename, virus: element.virus };
-            let res = await axios.post('http://httpbin.org/post', payload);
+            let res = await axios.post('http://httpbin.org/post', payload); /* Mock API server for demo */
             let data = res.data;
             console.log(data);
         };
@@ -57,11 +57,11 @@ async function sendResults(badFileList = null) {
 /**
  * Sends status information to the API endpoint
  * This includes data with information level severity such as a new USB being detected, a new scan running etc. 
- * @param  {string} status
+ * @param  {string} status - Status message to send
  */
 async function sendStatus(status) {
     let payload = { status: status };
-    let res = await axios.post('http://httpbin.org/post', payload);
+    let res = await axios.post('http://httpbin.org/post', payload); /* Mock API server for demo */
     let data = res.data;
     console.log(data);
 }
@@ -74,7 +74,6 @@ async function sendStatus(status) {
 async function scanDirectory(path) {
     const clamscan = await new NodeClam().init(options);
     try {
-        // TODO: Replace hard-coded path with path var it is here for faster testing
         clamscan.scanDir(path, async function (err, goodFiles, badFiles, viruses) {
             if (badFiles.length > 0) {
                 let badFileList = await parseLog(path);
@@ -90,7 +89,7 @@ async function scanDirectory(path) {
 
 /**
  * Add the ability to wait in parts of the code without blocking rest of the program
- * @param  {integer} ms - Time to wait
+ * @param  {integer} ms - Time to wait in miliseconds
  */
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -101,7 +100,7 @@ function sleep(ms) {
 /**
  * Parses the scanner log file to get detailed information about infected files
  * Takes a keyword parameter which has the path of a given infected file
- * @param  {string} keyword - Keyword that we are looking for
+ * @param  {string} keyword - path of the file we are intersted in
  */
 async function parseLog(keyword, logfile = options.scanLog) {
     let badFiles = [];
@@ -129,14 +128,14 @@ async function parseLog(keyword, logfile = options.scanLog) {
 async function getMountPoint(serialNumber) {
     sendStatus("Accessing the USB Device...");
     await sleep(5000); // Wait for device to be mounted by kernel
-    let out = child_process.spawnSync('/home/deari/projects/VSterilizer/getMountPoint.sh', [serialNumber]);
+    let out = child_process.spawnSync('./scripts/getMountPoint.sh', [serialNumber]);
     mount(out.stdout.toString('utf8').split("\n")[0]);
 }
 
 /**
  * Mount the given device to a auto-generated dir under the
  * products own mounting directory
- * @param  {string} source - source for the device to be mounted
+ * @param  {string} source - physical port of the device to be mounted. ex: /dev/sda0
  */
 function mount(source) {
     let uuid = uuidv4();
@@ -149,7 +148,7 @@ function mount(source) {
 /**
  * Enable watcher to detect newly plugged USB devices
  * Calls the mounting point getter function when a new device is detected
- * @param  {string} 'add' - Const string
+ * @param  {string} 'add' - Adds a new USB event listener
  */
 USBWatch.on('add', function (device) {
     getMountPoint(device.serialNumber);
@@ -163,12 +162,10 @@ function start() {
     fs.writeFileSync(options.scanLog, ''); // Clear the logs
     console.log("Started to monitor for USB inserts!");
     USBWatch.startMonitoring();
-    //getMountPoint("C03FD5F2F334F15109A501FD"); // For testing
-    //scanDirectory("/home/deari/Downloads/"); // Enable for testing
 }
 
 /**
- * Helper script to end the USB monitoring
+ * Helper to end the USB monitoring
  * Utilized while stopping or restarting the service
  */
 function endWatch() {
