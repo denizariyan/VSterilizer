@@ -5,8 +5,9 @@
 
 VSterilizer is a USB scanning service that scans any USB device plugged into the computer that is running the scanner utility and reports the results through API endpoints.
 
-## API Flow
+## Intro
 ![flowchart](https://github.com/denizariyan/VSterilizer/blob/fcf9c080fe14300fa23fe27c3fd1f00d2f107c5d/VSterilizer_API_flow.png)
+![use_case](https://github.com/denizariyan/VSterilizer/blob/2f5ac87c9e0a97dd4a262f08ecc2f549b7e5ece0/VSterilizer_use_case.png)
 
 ## Installation and Usage
 
@@ -181,4 +182,4 @@ Please make sure to update tests as appropriate.
 
 ## License
 
-[MIT](https://github.com/denizariyan/VSterilizer/blob/master/LICENSE)
+[MIT](https://github.com/denizariyan/VSterilizer/blob/2f5ac87c9e0a97dd4a262f08ecc2f549b7e5ece0/LICENSE)
